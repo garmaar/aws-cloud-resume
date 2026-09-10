@@ -15,48 +15,46 @@ This project implements a static frontend, a serverless visitor counter backend,
 
 # Architecture
 
+```
 The application follows a fully serverless AWS architecture.
 
-```
+### CI/CD Pipeline
 
 ```
-                     GitHub
-                        |
-                     git push
-                        |
-                        v
-               GitHub Actions
-                        |
-                       OIDC
-                        |
-                        v
-                AWS IAM Role
-                        |
-          +-------------+-------------+
-          |                           |
-          v                           v
-    Terraform                    S3 Sync
-          |                           |
-          v                           v
-  AWS Infrastructure            Frontend
-                                      |
-                                      v
-                                 CloudFront
-                                      |
-                                      v
-                                    Users
+GitHub
+  |
+  | git push
+  v
+GitHub Actions
+  |
+  | OIDC
+  v
+AWS IAM Role
+  |
+  +-------------------+
+  |                    |
+  v                    v
+Terraform            S3 Sync
+  |                    |
+  v                    v
+AWS Infrastructure   CloudFront
 ```
 
+### Request Flow
+
+```
 Users
-|
-v
-API Gateway HTTP API
-|
-v
+  |
+  v
+API Gateway (HTTP API)
+  |
+  v
 AWS Lambda
-|
-v
+  |
+  v
 DynamoDB
+```
+```
 
 ```
 

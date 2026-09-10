@@ -41,9 +41,10 @@ jobs:
         run: terraform validate
 
 
+
       - name: Terraform Apply
         working-directory: infra/environments/prod
-        run: terraform apply -auto-approve
+        run: terraform apply -auto-approve -var="budget_email=${{ secrets.BUDGET_EMAIL }}"
 
 
       - name: Deploy frontend to S3

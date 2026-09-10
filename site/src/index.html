@@ -1,28 +1,234 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cloud Resume Challenge</title>
-  </head>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pablo García Martínez — Cloud &amp; SRE</title>
 
-  <body>
-    <h1>Cloud Resume Challenge - AWS Serverless</h1>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-    <h2>Welcome to my Cloud Resume Challenge!</h2>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
 
-    <p> 
-      Visitors: <span id = "visitor-count">Loading...</span>
+<div class="frame">
+
+  <aside class="side">
+    <div class="side-top">
+      <a href="#top" class="mark">PGM</a>
+      <p class="role">Cloud / SRE Engineer</p>
+    </div>
+
+    <nav class="side-nav" aria-label="Section navigation">
+      <a href="#about">01 About</a>
+      <a href="#skills">02 Skills</a>
+      <a href="#projects">03 Projects</a>
+      <a href="#education">04 Education</a>
+      <a href="#certifications">05 Certifications</a>
+    </nav>
+
+    <div class="side-links">
+      <a href="https://github.com/garmaar" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://linkedin.com" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="assets/Pablo_Garcia_CV.pdf" target="_blank" rel="noopener">Download CV</a>
+    </div>
+
+    <p class="side-status">
+      <span class="side-status-label">Page views</span>
+      <span id="visits-count" class="side-status-value">—</span>
     </p>
+  </aside>
 
-    <p>
-      This website is stored in a private Amazon S3 bucket and delivered
-      through Amazon CloudFront. The infrastructure is managed with Terraform
-      as part of my Cloud Resume Challenge.
-    </p>
+  <main id="top">
 
-    <p>By Pablo García Martínez</p>
+    <section class="hero">
+      <h1>Pablo García Martínez</h1>
+      <p class="hero-lede">
+        Telecommunications engineering student building cloud infrastructure,
+        distributed systems and automation around AWS, infrastructure as code
+        and network-performance machine learning.
+      </p>
 
-    <script src = "scripts.js"></script>
-  </body>
+      <div class="diagram" role="img" aria-label="Architecture of the serverless AWS resume platform: S3 and CloudFront serve the site, API Gateway routes to a Lambda function backed by DynamoDB, deployed by GitHub Actions over OIDC">
+        <svg viewBox="0 0 860 210" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMid meet">
+          <line x1="60" y1="70" x2="800" y2="70" class="d-rule" />
+          <g class="d-node">
+            <rect x="30" y="40" width="90" height="60"/>
+            <text x="75" y="65">S3</text>
+            <text x="75" y="82" class="d-sub">static site</text>
+          </g>
+          <path d="M120 70 L188 70" class="d-arrow"/>
+          <g class="d-node">
+            <rect x="190" y="40" width="110" height="60"/>
+            <text x="245" y="65">CloudFront</text>
+            <text x="245" y="82" class="d-sub">edge cache</text>
+          </g>
+          <path d="M300 70 L368 70" class="d-arrow"/>
+          <g class="d-node">
+            <rect x="370" y="40" width="120" height="60"/>
+            <text x="430" y="65">API Gateway</text>
+            <text x="430" y="82" class="d-sub">HTTPS</text>
+          </g>
+          <path d="M490 70 L558 70" class="d-arrow"/>
+          <g class="d-node d-node--accent">
+            <rect x="560" y="40" width="100" height="60"/>
+            <text x="610" y="65">Lambda</text>
+            <text x="610" y="82" class="d-sub">Python</text>
+          </g>
+          <path d="M660 70 L728 70" class="d-arrow"/>
+          <g class="d-node">
+            <rect x="730" y="40" width="100" height="60"/>
+            <text x="780" y="65">DynamoDB</text>
+            <text x="780" y="82" class="d-sub">counter</text>
+          </g>
+
+          <line x1="120" y1="160" x2="700" y2="160" class="d-rule d-rule--dashed"/>
+          <g class="d-node d-node--ghost">
+            <rect x="30" y="132" width="150" height="56"/>
+            <text x="105" y="155">GitHub Actions</text>
+            <text x="105" y="172" class="d-sub">CI / CD</text>
+          </g>
+          <path d="M180 160 L 420 160 L 420 100" class="d-arrow d-arrow--dashed"/>
+          <text x="430" y="196" class="d-caption">deploys via OIDC federation — no long-lived credentials</text>
+        </svg>
+      </div>
+    </section>
+
+    <section id="about" class="block">
+      <h2>About</h2>
+      <p>
+        I'm a telecommunications engineering student interested in site
+        reliability engineering, cloud infrastructure and scalable systems.
+        My projects sit at the intersection of networking and cloud —
+        provisioning infrastructure as code, automating deployment pipelines,
+        and applying machine learning to network performance data.
+      </p>
+    </section>
+
+    <section id="skills" class="block">
+      <h2>Technical skills</h2>
+
+      <dl class="spec">
+        <div class="spec-row">
+          <dt>Cloud &amp; infrastructure</dt>
+          <dd>AWS, Terraform, Docker, infrastructure as code, IAM, serverless architecture</dd>
+        </div>
+        <div class="spec-row">
+          <dt>AWS services</dt>
+          <dd>S3, CloudFront, Lambda, API Gateway, DynamoDB, STS</dd>
+        </div>
+        <div class="spec-row">
+          <dt>Programming</dt>
+          <dd>Python, C, Java, Bash, FastAPI</dd>
+        </div>
+        <div class="spec-row">
+          <dt>Systems &amp; networking</dt>
+          <dd>Linux, TCP/IP, HTTP, DNS, routing, subnetting, OSPF, BGP</dd>
+        </div>
+        <div class="spec-row">
+          <dt>DevOps</dt>
+          <dd>Git, GitHub Actions, CI/CD, OIDC federation</dd>
+        </div>
+        <div class="spec-row">
+          <dt>Machine learning</dt>
+          <dd>PyTorch, scikit-learn, pandas, NumPy, matplotlib</dd>
+        </div>
+      </dl>
+    </section>
+
+    <section id="projects" class="block">
+      <h2>Projects</h2>
+
+      <article class="proj">
+        <div class="proj-head">
+          <h3>Serverless AWS resume platform</h3>
+          <a href="https://github.com/garmaar/aws-cloud-resume" target="_blank" rel="noopener" class="proj-link">Source</a>
+        </div>
+        <p class="proj-stack">AWS · Terraform · GitHub Actions · Python</p>
+        <ul>
+          <li>Serverless application using S3, CloudFront, API Gateway, Lambda and DynamoDB.</li>
+          <li>Infrastructure provisioned with Terraform, following infrastructure-as-code practices.</li>
+          <li>CI/CD deployments automated with GitHub Actions using AWS OIDC federation, avoiding long-lived credentials.</li>
+        </ul>
+      </article>
+
+      <article class="proj">
+        <div class="proj-head">
+          <h3>5G throughput prediction &amp; federated learning</h3>
+          <a href="https://github.com/garmaar/5g-throughput-prediction" target="_blank" rel="noopener" class="proj-link">Source</a>
+        </div>
+        <p class="proj-stack">Python · PyTorch · scikit-learn</p>
+        <ul>
+          <li>ML pipeline over 100k+ network measurements, including SINR, PRB allocation, BLER and traffic features.</li>
+          <li>Federated learning architecture using FedAvg for decentralized training across simulated 5G user nodes.</li>
+          <li>Time-aware validation strategy to prevent data leakage during network performance prediction.</li>
+        </ul>
+      </article>
+
+      <article class="proj">
+        <div class="proj-head">
+          <h3>Polling systems discrete-event simulation</h3>
+          <a href="https://github.com/garmaar/project3-polling-systems" target="_blank" rel="noopener" class="proj-link">Source</a>
+        </div>
+        <p class="proj-stack">Python · SimPy · NumPy · Pandas</p>
+        <ul>
+          <li>Discrete-event simulator for multiple-access systems under Poisson traffic loads.</li>
+          <li>Validated against analytical queueing models, with relative errors below 1%.</li>
+          <li>Analyzed throughput, latency and fairness trade-offs under asymmetric congestion.</li>
+        </ul>
+      </article>
+    </section>
+
+    <section id="education" class="block">
+      <h2>Education</h2>
+
+      <ol class="timeline">
+        <li>
+          <span class="timeline-date">Expected 2028</span>
+          <h3>Universidad de Sevilla (ETSI)</h3>
+          <p>Bachelor's degree in telecommunications engineering — Seville, Spain</p>
+        </li>
+        <li>
+          <span class="timeline-date">Completed</span>
+          <h3>Politecnico di Milano</h3>
+          <p>Erasmus+ academic exchange, telecommunications engineering (networking focus) — Milan, Italy</p>
+        </li>
+        <li>
+          <span class="timeline-date">Enrolled</span>
+          <h3>UCAM Murcia</h3>
+          <p>SICUE mobility program, telecommunications engineering — Murcia, Spain</p>
+        </li>
+      </ol>
+    </section>
+
+    <section id="certifications" class="block">
+      <h2>Certifications &amp; achievements</h2>
+
+      <dl class="spec">
+        <div class="spec-row">
+          <dt>Google Cloud EMEA University Challenge</dt>
+          <dd>Ranked 63rd overall</dd>
+        </div>
+        <div class="spec-row">
+          <dt>AWS Certified Solutions Architect – Associate</dt>
+          <dd>Expected December 2026</dd>
+        </div>
+        <div class="spec-row">
+          <dt>Languages</dt>
+          <dd>Spanish (native), English (C1 certified), Italian (intermediate)</dd>
+        </div>
+      </dl>
+    </section>
+
+    <footer>
+      <p>© 2026 Pablo García Martínez</p>
+    </footer>
+
+  </main>
+</div>
+
+<script src="scripts.js"></script>
+</body>
 </html>

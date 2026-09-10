@@ -31,6 +31,11 @@ jobs:
         uses: hashicorp/setup-terraform@v3
 
 
+
+      - name: Terraform Format Check
+        working-directory: infra/environments/prod
+        run: terraform fmt -check
+
       - name: Terraform Init
         working-directory: infra/environments/prod
         run: terraform init

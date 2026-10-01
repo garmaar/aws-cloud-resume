@@ -290,3 +290,39 @@ html.lenis, html.lenis body { height: auto; }
   .diagram { overflow: visible; }
   .diagram svg { min-width: 0; }
 }
+/* Difuminado del fondo azul en los cuatro bordes del hero. */
+.hero-ambient {
+  -webkit-mask-image:
+    linear-gradient(
+      to right,
+      transparent,
+      #000 10%,
+      #000 90%,
+      transparent
+    ),
+    linear-gradient(
+      to bottom,
+      transparent,
+      #000 18%,
+      #000 75%,
+      transparent
+    );
+  -webkit-mask-composite: source-in;
+
+  mask-image:
+    linear-gradient(
+      to right,
+      transparent,
+      #000 10%,
+      #000 90%,
+      transparent
+    ),
+    linear-gradient(
+      to bottom,
+      transparent,
+      #000 18%,
+      #000 75%,
+      transparent
+    );
+  mask-composite: intersect;
+}

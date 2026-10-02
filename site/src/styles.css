@@ -81,6 +81,8 @@ main, .block > *, .proj > * { min-width: 0; }
   width: 17px; height: 17px; flex: 0 0 17px; fill: none;
   stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round;
 }
+/* Closed, filled letterforms stay legible at the same size as the other icons. */
+.icon--linkedin { fill: currentColor; stroke: none; }
 .visits { margin-top: 24px; display: flex; gap: 13px; font-size: 11px; color: var(--quiet); }
 .visits > span:first-child { text-transform: uppercase; }
 #visits-count { color: var(--text); font-weight: 500; font-variant-numeric: tabular-nums; }
@@ -241,8 +243,14 @@ html.lenis, html.lenis body { height: auto; }
     align-items: flex-start; flex-direction: column; justify-content: center;
     gap: 10px; padding-block: 18px;
   }
-  .section-nav { width: 100%; gap: 0 16px; }
-  .section-nav a { font-size: 10px; }
+  .section-nav {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%; gap: 0 8px;
+  }
+  .section-nav a {
+    display: flex; align-items: center; min-height: 44px;
+    padding: 8px 4px; font-size: 12px;
+  }
   .hero { padding: 48px 0 72px; }
   .hero h1 { font-size: clamp(30px, 8vw, 40px); max-width: 19ch; }
   .eyebrow { font-size: 10px; margin-bottom: 18px; }

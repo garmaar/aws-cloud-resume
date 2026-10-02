@@ -5,12 +5,12 @@
   --surface: #182637;
   --text: #ede8dc;
   --highlight: #e0954d;
-  --muted: #b5c0ce;
+  --muted: #a9b6c7;
   --quiet: #95a7ba;
   --accent: #8dd8d0;
   --border: #314356;
   --rule: #263547;
-  /* Lower this duration for faster hero motion. Preserve the current 10s setting. */
+  /* Lower this duration for faster hero motion. Latest agreed value: 6s. */
   --background-speed: 10s;
   --font: 'Geist Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
 }
@@ -173,15 +173,14 @@ h2 { font-size: 21px; letter-spacing: -.035em; line-height: 1.5; }
 #projects > h2 { grid-column: 1 / -1; margin-bottom: 8px; }
 .proj {
   grid-column: 1 / -1; display: grid;
-  grid-template-columns: 340px minmax(0, 1fr);
+  grid-template-columns: 320px minmax(0, 1fr);
   grid-template-rows: min-content min-content 1fr;
-  gap: 12px 56px; padding: 32px 0;
+  gap: 12px 64px; padding: 32px 0;
 }
 .proj + .proj { border-top: 1px solid var(--rule); }
 .proj:last-child { padding-bottom: 0; }
 .proj-head { grid-column: 1; grid-row: 1; }
-.proj h3 { font-size: 22px; font-weight: 500; line-height: 1.45; letter-spacing: -.04em; text-wrap: balance; }
-.keep-word { white-space: nowrap; }
+.proj h3 { font-size: 22px; font-weight: 500; line-height: 1.45; letter-spacing: -.04em; }
 .proj-stack { grid-column: 1; grid-row: 2; color: var(--accent); font-size: 11px; line-height: 1.9; }
 .proj ul {
   grid-column: 2; grid-row: 1 / 4; align-self: start;
@@ -219,7 +218,7 @@ html.lenis, html.lenis body { height: auto; }
   .frame { width: calc(100% - 80px); }
   .block { grid-template-columns: 190px minmax(0, 1fr); column-gap: 40px; }
   .spec-row { grid-template-columns: 180px minmax(0, 1fr); gap: 20px; }
-  .proj { grid-template-columns: 300px minmax(0, 1fr); column-gap: 40px; }
+  .proj { grid-template-columns: 280px minmax(0, 1fr); column-gap: 44px; }
 }
 @media (max-width: 900px) {
   .frame { width: calc(100% - 64px); }
@@ -242,14 +241,8 @@ html.lenis, html.lenis body { height: auto; }
     align-items: flex-start; flex-direction: column; justify-content: center;
     gap: 10px; padding-block: 18px;
   }
-  .section-nav {
-    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
-    width: 100%; gap: 0 8px;
-  }
-  .section-nav a {
-    display: flex; align-items: center; min-height: 44px;
-    padding: 8px 4px; font-size: 12px;
-  }
+  .section-nav { width: 100%; gap: 0 16px; }
+  .section-nav a { font-size: 10px; }
   .hero { padding: 48px 0 72px; }
   .hero h1 { font-size: clamp(30px, 8vw, 40px); max-width: 19ch; }
   .eyebrow { font-size: 10px; margin-bottom: 18px; }
@@ -333,7 +326,17 @@ html.lenis, html.lenis body { height: auto; }
     );
   mask-composite: intersect;
 }
-/* Ensure a section entrance never affects printed text. */
+/* Complete section separators, independent of JavaScript and scroll position. */
+.block { position: relative; }
+.block::before {
+  content: "";
+  position: absolute; top: -1px; left: 0; right: 0; height: 1px;
+  background: var(--accent); opacity: .6;
+  pointer-events: none;
+}
 @media print {
-  .block h2 { transform: none !important; opacity: 1 !important; }
+  .block::before { display: none !important; }
+  .block h2, .proj-head, .proj-stack, .proj-link, .proj li, .spec-row, .timeline li {
+    transform: none !important; opacity: 1 !important;
+  }
 }

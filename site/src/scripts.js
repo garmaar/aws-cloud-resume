@@ -25,31 +25,137 @@ fetch(API_URL)
   let lenis = null;
   let lenisRequested = false;
   const activeAnimations = new Set();
-  let sectionObserver = null;
-  const revealedHeadings = new WeakSet();
+  let scrollContext = null;
+  let scrollLibraryPromise = null;
+  let fallbackObserver = null;
+  const narrowScreen = window.matchMedia("(max-width: 600px)");
 
-  // One small heading entrance per section. Body text, projects and SVG stay still.
-  // No pre-hidden content, scroll scrubbing, staggered rows or animation library.
-  function startSectionEntrances() {
-    if (sectionObserver || reducedMotion.matches || !("IntersectionObserver" in window)) return;
-    sectionObserver = new IntersectionObserver(entries => {
+  function syncScroll() {
+    if (window.ScrollTrigger) window.ScrollTrigger.update();
+  }
+
+  function loadScript(url, globalName) {
+    if (window[globalName]) return Promise.resolve();
+    return new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = url;
+      script.async = true;
+      script.onload = () => window[globalName] ? resolve() : reject(new Error(globalName + " unavailable"));
+      script.onerror = () => reject(new Error(globalName + " could not be loaded"));
+      document.head.appendChild(script);
+    });
+  }
+
+  function stopScrollEffects() {
+    if (scrollContext) {
+      scrollContext.revert();
+      scrollContext = null;
+    }
+    document.documentElement.classList.remove("scroll-visual-ready");
+  }
+
+  function startFallback() {
+    if (fallbackObserver || reducedMotion.matches || !("IntersectionObserver" in window)) return;
+    fallbackObserver = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (!entry.isIntersecting) return;
-        sectionObserver.unobserve(entry.target);
-        revealedHeadings.add(entry.target);
-        const heading = entry.target;
-        if (reducedMotion.matches || !heading || typeof heading.animate !== "function") return;
-        const animation = heading.animate([
-          { opacity: 0.9, transform: "translateY(8px)" },
+        fallbackObserver.unobserve(entry.target);
+        if (reducedMotion.matches || typeof entry.target.animate !== "function") return;
+        const animation = entry.target.animate([
+          { opacity: 0.85, transform: "translateY(18px)" },
           { opacity: 1, transform: "translateY(0)" }
-        ], { duration: 420, easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "none" });
+        ], { duration: 650, easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "none" });
         activeAnimations.add(animation);
         animation.onfinish = animation.oncancel = () => activeAnimations.delete(animation);
       });
-    }, { threshold: 0, rootMargin: "0px 0px -32px 0px" });
-    document.querySelectorAll(".block:not(.block--architecture) > h2").forEach(heading => {
-      if (!revealedHeadings.has(heading)) sectionObserver.observe(heading);
+    }, { threshold: 0.08 });
+    document.querySelectorAll(".block > h2, .proj, .spec-row, .timeline li").forEach(el => fallbackObserver.observe(el));
+  }
+
+  function startScrollEffects() {
+    if (reducedMotion.matches || scrollContext || !window.gsap || !window.ScrollTrigger) return;
+    const gsap = window.gsap;
+    const ScrollTrigger = window.ScrollTrigger;
+    gsap.registerPlugin(ScrollTrigger);
+    if (fallbackObserver) { fallbackObserver.disconnect(); fallbackObserver = null; }
+    for (const animation of activeAnimations) animation.cancel();
+    activeAnimations.clear();
+    document.documentElement.classList.add("scroll-visual-ready");
+    const small = narrowScreen.matches;
+
+    try {
+      scrollContext = gsap.context(() => {});
+      scrollContext.add(() => {
+        const trigger = (element, start = "top 92%", end = "top 62%") => ({
+          trigger: element, start, end, scrub: 0.45, invalidateOnRefresh: true
+        });
+
+        // Every section has a measured visual introduction, without moving its SVG.
+        document.querySelectorAll(".block").forEach(section => {
+          const heading = section.querySelector("h2");
+          gsap.fromTo(heading, { y: small ? 18 : 28 }, {
+            y: 0, ease: "none", scrollTrigger: trigger(heading)
+          });
+
+        });
+
+        // Titles and descriptions arrive in separate planes; no cards or scroll pinning.
+        document.querySelectorAll(".proj").forEach(project => {
+          const identity = project.querySelectorAll(".proj-head, .proj-stack, .proj-link");
+          const details = project.querySelectorAll("li");
+          const timeline = gsap.timeline({ scrollTrigger: trigger(project, "top 90%", "top 46%") });
+          timeline.fromTo(identity, { x: small ? 0 : -28, y: small ? 24 : 0 }, {
+            x: 0, y: 0, duration: 1, ease: "power2.out"
+          }, 0);
+          gsap.set(details, { x: small ? 0 : 24, y: 24, opacity: 0.85 });
+          timeline.to(details, {
+            x: 0, y: 0, opacity: 1, stagger: 0.16, duration: 0.85, ease: "power2.out"
+          }, 0.12);
+        });
+
+        document.querySelectorAll("#skills .spec-row").forEach(row => {
+          gsap.fromTo(row, { x: small ? 0 : 24, y: 18, opacity: 0.85 }, {
+            x: 0, y: 0, opacity: 1, ease: "none", scrollTrigger: trigger(row, "top 94%", "top 70%")
+          });
+        });
+        document.querySelectorAll(".timeline li, #certifications .spec-row").forEach(row => {
+          gsap.fromTo(row, { y: 30, opacity: 0.85 }, {
+            y: 0, opacity: 1, ease: "none", scrollTrigger: trigger(row, "top 94%", "top 70%")
+          });
+        });
+      });
+      // Refresh once fonts settle; Lenis keeps its own RAF, avoiding duplicate RAF calls.
+      if (document.fonts) document.fonts.ready.then(() => {
+        if (scrollContext && !reducedMotion.matches) ScrollTrigger.refresh();
+      });
+      ScrollTrigger.refresh();
+    } catch (error) {
+      stopScrollEffects();
+      startFallback();
+      console.warn("Scroll effects unavailable; using simple entrances.", error);
+    }
+  }
+
+  function loadScrollEffects() {
+    if (reducedMotion.matches) return;
+    if (!scrollLibraryPromise) {
+      scrollLibraryPromise = loadScript("https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js", "gsap")
+        .then(() => loadScript("https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js", "ScrollTrigger"));
+    }
+    scrollLibraryPromise.then(startScrollEffects).catch(error => {
+      startFallback();
+      console.warn("GSAP could not be loaded; page remains usable.", error);
     });
+  }
+
+  function rebuildScrollEffects() {
+    stopScrollEffects();
+    if (!reducedMotion.matches) loadScrollEffects();
+  }
+  if (typeof narrowScreen.addEventListener === "function") {
+    narrowScreen.addEventListener("change", rebuildScrollEffects);
+  } else {
+    narrowScreen.addListener(rebuildScrollEffects);
   }
 
   function updateBackgroundMotion() {
@@ -87,6 +193,7 @@ fetch(API_URL)
         anchors: false, // Native anchors keep URL hash, keyboard and focus behavior.
         virtualScroll: ({ event }) => !event.ctrlKey && !event.shiftKey
       });
+      lenis.on("scroll", syncScroll);
     } catch (error) {
       console.warn("Smooth scrolling unavailable; using native scrolling.", error);
     }
@@ -113,7 +220,8 @@ fetch(API_URL)
 
   function applyMotionPreference() {
     if (reducedMotion.matches) {
-      if (sectionObserver) { sectionObserver.disconnect(); sectionObserver = null; }
+      stopScrollEffects();
+      if (fallbackObserver) { fallbackObserver.disconnect(); fallbackObserver = null; }
       if (lenis) {
         lenis.destroy();
         lenis = null;
@@ -122,7 +230,7 @@ fetch(API_URL)
       activeAnimations.clear();
     } else {
       loadLenis();
-      startSectionEntrances();
+      loadScrollEffects();
     }
     updateBackgroundMotion();
   }

@@ -25,6 +25,32 @@ fetch(API_URL)
   let lenis = null;
   let lenisRequested = false;
   const activeAnimations = new Set();
+  let sectionObserver = null;
+  const revealedHeadings = new WeakSet();
+
+  // One small heading entrance per section. Body text, projects and SVG stay still.
+  // No pre-hidden content, scroll scrubbing, staggered rows or animation library.
+  function startSectionEntrances() {
+    if (sectionObserver || reducedMotion.matches || !("IntersectionObserver" in window)) return;
+    sectionObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        sectionObserver.unobserve(entry.target);
+        revealedHeadings.add(entry.target);
+        const heading = entry.target;
+        if (reducedMotion.matches || !heading || typeof heading.animate !== "function") return;
+        const animation = heading.animate([
+          { opacity: 0.9, transform: "translateY(8px)" },
+          { opacity: 1, transform: "translateY(0)" }
+        ], { duration: 420, easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "none" });
+        activeAnimations.add(animation);
+        animation.onfinish = animation.oncancel = () => activeAnimations.delete(animation);
+      });
+    }, { threshold: 0, rootMargin: "0px 0px -32px 0px" });
+    document.querySelectorAll(".block:not(.block--architecture) > h2").forEach(heading => {
+      if (!revealedHeadings.has(heading)) sectionObserver.observe(heading);
+    });
+  }
 
   function updateBackgroundMotion() {
     hero.classList.toggle("motion-enabled", !reducedMotion.matches);
@@ -41,27 +67,8 @@ fetch(API_URL)
   });
   document.addEventListener("visibilitychange", updateBackgroundMotion);
 
-  // Animate on entry, never pre-hide or add opacity:0 classes to content.
-  // Without JS, IntersectionObserver or Web Animations, everything stays visible.
+  // CSS never pre-hides content; all enhancements are optional.
   if ("IntersectionObserver" in window) {
-    const revealObserver = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (!entry.isIntersecting) return;
-        revealObserver.unobserve(entry.target);
-        if (reducedMotion.matches || typeof entry.target.animate !== "function") return;
-        const animation = entry.target.animate([
-          { opacity: 0.55, transform: "translateY(12px)" },
-          { opacity: 1, transform: "translateY(0)" }
-        ], { duration: 650, easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "none" });
-        activeAnimations.add(animation);
-        animation.onfinish = animation.oncancel = () => activeAnimations.delete(animation);
-      });
-    }, { threshold: 0.08 });
-    // Cards have their own entrances; the Projects heading is animated separately.
-    document.querySelectorAll("[data-reveal]").forEach(element => {
-      revealObserver.observe(element.id === "projects" ? element.querySelector("h2") : element);
-    });
-
     const heroObserver = new IntersectionObserver(entries => {
       heroVisible = entries[0].isIntersecting;
       updateBackgroundMotion();
@@ -106,6 +113,7 @@ fetch(API_URL)
 
   function applyMotionPreference() {
     if (reducedMotion.matches) {
+      if (sectionObserver) { sectionObserver.disconnect(); sectionObserver = null; }
       if (lenis) {
         lenis.destroy();
         lenis = null;
@@ -114,6 +122,7 @@ fetch(API_URL)
       activeAnimations.clear();
     } else {
       loadLenis();
+      startSectionEntrances();
     }
     updateBackgroundMotion();
   }

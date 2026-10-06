@@ -146,23 +146,43 @@ h2 { font-size: 21px; letter-spacing: -.035em; line-height: 1.5; }
   overscroll-behavior-x: contain; overscroll-behavior-y: auto;
   scrollbar-color: #52708b var(--bg); scrollbar-width: thin;
 }
-.diagram svg { display: block; width: 100%; min-width: 860px; height: auto; }
-.d-rule { stroke: var(--border); stroke-width: 1; }
-.d-rule--dashed { stroke-dasharray: 3 4; }
-.d-arrow { fill: none; stroke: #7294ad; stroke-width: 1; marker-end: url(#diagram-arrow); }
-.d-arrow--dashed { stroke-dasharray: 3 4; }
-.d-node rect { fill: var(--surface); stroke: var(--border); stroke-width: 1; }
-.d-node text { fill: var(--text); font-family: var(--font); font-size: 13px; text-anchor: middle; }
-.d-node .d-sub { fill: var(--muted); font-size: 11px; }
-.d-node--accent rect { stroke: var(--accent); }
-.d-node--ghost rect { fill: var(--bg); stroke: var(--border); stroke-dasharray: 3 4; }
-.d-caption { fill: var(--muted); font-family: var(--font); font-size: 11px; }
-.d-deploy { stroke: var(--accent); }
-.d-deploy-label { fill: var(--accent); font-family: var(--font); font-size: 10px; }
+.diagram svg { display: block; width: 100%; min-width: 1040px; height: auto; }
+/* Requests and CI/CD actions are separate; connectors remain static. */
+.diagram .d-node rect { fill: var(--surface); stroke: var(--border); stroke-width: 1; }
+.diagram .d-node text {
+  fill: var(--text); font-family: var(--font); font-size: 14px;
+  font-weight: 500; text-anchor: middle;
+}
+.diagram .d-node .d-sub { fill: var(--muted); font-size: 11px; font-weight: 400; }
+.diagram .d-browser rect { fill: var(--bg); stroke: #5d7185; }
+.diagram .d-pipeline rect { fill: var(--bg); stroke: #526879; }
+.diagram .d-arrow {
+  fill: none; stroke: var(--muted); stroke-width: 1.4;
+  marker-end: url(#arch-request-arrow);
+}
+.diagram .d-deploy {
+  stroke: var(--accent); stroke-dasharray: 5 5;
+  marker-end: url(#arch-deploy-arrow);
+}
+.diagram .d-infra {
+  stroke: var(--quiet); stroke-dasharray: 2 5;
+  marker-end: url(#arch-infra-arrow);
+}
+.diagram .d-label { fill: var(--muted); font-family: var(--font); font-size: 11px; }
+.diagram .d-deploy-label { fill: var(--accent); }
+.diagram .d-infra-label { fill: var(--quiet); }
+.diagram .d-group { fill: none; stroke: var(--border); stroke-dasharray: 3 6; }
+.diagram .d-legend { fill: var(--muted); font-family: var(--font); font-size: 11px; }
+.block > .diagram-caption {
+  grid-column: 1 / -1; grid-row: auto; margin-top: 20px;
+  max-width: none; color: var(--quiet); font-size: 11px; line-height: 1.8;
+}
 .block > .diagram-hint {
   display: none; grid-column: 1 / -1; grid-row: auto;
   margin-top: 12px; color: var(--quiet); font-size: 11px;
 }
+@media (max-width: 1135px) { .block > .diagram-hint { display: block; } }
+
 .spec-row {
   display: grid; grid-template-columns: 210px minmax(0, 1fr);
   gap: 24px; padding: 16px 0; border-bottom: 1px solid var(--rule);

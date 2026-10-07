@@ -2,62 +2,31 @@
 
 A serverless resume website deployed on AWS using Infrastructure as Code (Terraform) and CI/CD automation with GitHub Actions.
 
-This project implements a static frontend, a serverless visitor counter backend, and a secure automated deployment pipeline using AWS OIDC federation.
+The project has a static frontend, a serverless visitor counter backend, and an automated deployment pipeline that authenticates to AWS through OIDC federation.
 
 ---
 
 ## Live Demo
 
-🌐 https://d12vcl4o8nwstz.cloudfront.net
+🌐 <https://d12vcl4o8nwstz.cloudfront.net>
 
 ---
 
 ## Architecture
 
-The application follows a fully serverless AWS architecture.
+The browser makes two independent requests: static files from CloudFront, and the visitor counter from API Gateway. Deployment and provisioning are handled separately by GitHub Actions and Terraform.
 
-### CI/CD & Infrastructure Flow
+![Cloud resume architecture diagram](docs/architecture.svg)
 
-```
-GitHub
-  |
-  | git push
-  v
-GitHub Actions
-  |
-  | OIDC
-  v
-AWS IAM Role
-  |
-  +-------------------+-------------------+
-  |                                       |
-  v                                       v
-Terraform                             S3 Sync
-  |                                       |
-  v                                       v
-AWS Infrastructure                    Frontend
-                                          |
-                                          v
-                                     CloudFront
-                                          |
-                                          v
-                                        Users
-```
+### Request flow
 
-### Request Flow
+1. The browser requests the page from CloudFront, which serves HTML, CSS and JS from the private S3 origin.
+2. The page then calls `GET /visits` on API Gateway directly. This request does not go through CloudFront.
+3. API Gateway invokes the Lambda function, which updates the counter in DynamoDB.
 
-```
-Users
-  |
-  v
-API Gateway (HTTP API)
-  |
-  v
-AWS Lambda
-  |
-  v
-Amazon DynamoDB
-```
+### Deployment flow
+
+Every push to `main` triggers GitHub Actions, which applies Terraform, uploads the site to S3 and invalidates the CloudFront cache. See [CI/CD Pipeline](#cicd-pipeline).
 
 ---
 
@@ -71,11 +40,11 @@ The frontend is hosted using:
 - Amazon CloudFront
 - CloudFront Origin Access Control (OAC)
 
-The S3 bucket remains private and only CloudFront can access the website content. The website is delivered through HTTPS using CloudFront.
+The S3 bucket stays private and only CloudFront can read from it. The site is served over HTTPS through CloudFront.
 
 ### Serverless Visit Counter
 
-The project includes a serverless backend to track page visits.
+A serverless backend tracks page visits.
 
 ```
 GET /visits
@@ -102,7 +71,7 @@ Services used:
 
 ## Infrastructure as Code
 
-All AWS resources are provisioned and managed using Terraform.
+All AWS resources are provisioned and managed with Terraform.
 
 Terraform manages:
 
@@ -116,7 +85,7 @@ Terraform manages:
 - AWS Budget alerts
 - GitHub Actions OIDC integration
 
-Infrastructure can be recreated from code without manual AWS Console configuration.
+The infrastructure can be recreated from code without manual configuration in the AWS Console.
 
 ---
 
@@ -131,7 +100,7 @@ git push
 GitHub Actions
   |
   v
-AWS Authentication using OIDC
+AWS authentication using OIDC
   |
   v
 Terraform Init
@@ -149,13 +118,13 @@ Frontend deployment to S3
 CloudFront cache invalidation
 ```
 
-The pipeline automatically:
+The pipeline:
 
 1. Authenticates against AWS using OIDC federation.
 2. Obtains temporary AWS credentials through AWS STS.
-3. Applies infrastructure changes using Terraform.
+3. Applies infrastructure changes with Terraform.
 4. Uploads frontend changes to S3.
-5. Invalidates CloudFront cache.
+5. Invalidates the CloudFront cache.
 
 ---
 
@@ -172,19 +141,19 @@ CloudFront accesses S3 using:
 
 ### Secure CI/CD Authentication
 
-No AWS access keys are stored in GitHub. Instead, GitHub Actions authenticates using:
+No AWS access keys are stored in GitHub. GitHub Actions authenticates with:
 
 ```
 GitHub Actions
   |
   v
-OIDC Token
+OIDC token
   |
   v
-AWS IAM Role
+AWS IAM role
   |
   v
-Temporary AWS Credentials
+Temporary AWS credentials
 ```
 
 The IAM trust policy restricts access to:
@@ -194,7 +163,7 @@ The IAM trust policy restricts access to:
 
 ### IAM Roles
 
-AWS permissions are managed using IAM roles and policies:
+AWS permissions are managed with IAM roles and policies:
 
 - Lambda execution role
 - GitHub Actions deployment role
@@ -268,15 +237,15 @@ AWS permissions are managed using IAM roles and policies:
 
 Deployment is fully automated through GitHub Actions.
 
-To deploy a new change:
+To deploy a change:
 
-```bash
+```
 git add .
 git commit -m "update website"
 git push
 ```
 
-The pipeline automatically deploys the changes to AWS.
+The pipeline deploys the changes to AWS.
 
 ---
 
@@ -289,17 +258,15 @@ Through this project I implemented:
 - Secure AWS authentication using OIDC federation
 - CI/CD automation with GitHub Actions
 - IAM roles and permission management
-- CloudFront and S3 secure static hosting
+- Secure static hosting with CloudFront and S3
 - Backend development using Lambda, API Gateway and DynamoDB
 
 ---
 
 ## Future Improvements
 
-Potential improvements:
-
 - Replace hardcoded deployment values with Terraform outputs consumed by CI/CD.
 - Implement stricter IAM least-privilege policies.
 - Add automated testing stages.
 - Add monitoring and observability using AWS CloudWatch.
-- Add custom domain and SSL certificate using Route 53 and ACM.
+- Add a custom domain and SSL certificate using Route 53 and ACM.
